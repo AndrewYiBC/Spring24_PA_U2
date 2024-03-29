@@ -21,11 +21,84 @@
 <body>
 <script type="module">
     import {ThreeEngine} from "../js/utils/utils_three.js";
+    import {get_default_lil_gui} from "../js/utils/utils_three.js";
+    import {refresh_displays} from "../js/utils/utils_three.js";
+    import {mul_matrix_matrix, add_matrix_matrix} from "../js/utils/utils_math.js";
 
     // todo: recreate this visualization, demonstrating your understanding of displacement-based distance in SE(2)
     // todo: https://yale-cpsc-487-587-internal-djrakita-c95fa6c3239a481a48d29a6b0fd.gitlab.io/html/visualizations/SE2_distance2.html
     // todo: make sure you are using the displacement-based distance!
     // todo: or, feel free to come up with any visualization here that demonstrates your understanding of SE(2) distance
+
+    let engine = ThreeEngine.new_default_2d();
+
+    let settings = {
+        theta1: 0.0,
+        tx1: 0.0,
+        ty1: 0.0,
+        theta2: 0.0,
+        tx2: 0.0,
+        ty2: 0.0,
+        dis: ""
+    }
+
+    let actions = {
+        reset1: function() {
+            settings.theta1 = 0.0;
+            settings.tx1 = 0.0;
+            settings.ty1 = 0.0;
+            refresh_displays(gui);
+        },
+        reset2: function() {
+            settings.theta2 = 0.0;
+            settings.tx2 = 0.0;
+            settings.ty2 = 0.0;
+            refresh_displays(gui);
+        }
+    };
+
+    let gui = get_default_lil_gui();
+    gui.add(settings, "theta1", -Math.PI, Math.PI);
+    gui.add(settings, "tx1", -2.0, 2.0);
+    gui.add(settings, "ty1", -2.0, 2.0);
+    gui.add(actions, "reset1").name("Reset Matrix 1");
+    gui.add(settings, "theta2", -Math.PI, Math.PI);
+    gui.add(settings, "tx2", -2.0, 2.0);
+    gui.add(settings, "ty2", -2.0, 2.0);
+    gui.add(actions, "reset2").name("Reset Matrix 2");
+    gui.add(settings, "dis").name("Disp based Dis").disable();
+
+    engine.animation_loop(() => {
+        let m1 = [
+            [Math.cos(settings.theta1), -Math.sin(settings.theta1), settings.tx1],
+            [Math.sin(settings.theta1), Math.cos(settings.theta1), settings.ty1],
+            [0, 0, 1]
+        ];
+
+        let vx1 = [m1[0][0], m1[1][0]];
+        let vy1 = [m1[0][1], m1[1][1]];
+        let vt1 = [settings.tx1, settings.ty1];
+
+        engine.draw_debug_vector([0,0], vt1, 0.035, undefined, 0x3333ff);
+        engine.draw_debug_vector(vt1, add_matrix_matrix(vt1, vx1), 0.035, undefined, 0xff3333);
+        engine.draw_debug_vector(vt1, add_matrix_matrix(vt1, vy1), 0.035, undefined, 0x33ff33);
+
+        let m2 = [
+            [Math.cos(settings.theta2), -Math.sin(settings.theta2), settings.tx2],
+            [Math.sin(settings.theta2), Math.cos(settings.theta2), settings.ty2],
+            [0, 0, 1]
+        ];
+
+        let vx2 = [m2[0][0], m2[1][0]];
+        let vy2 = [m2[0][1], m2[1][1]];
+        let vt2 = [settings.tx2, settings.ty2];
+
+        engine.draw_debug_vector([0,0], vt2, 0.035, undefined, 0x3333aa);
+        engine.draw_debug_vector(vt2, add_matrix_matrix(vt2, vx2), 0.035, undefined, 0xaa3333);
+        engine.draw_debug_vector(vt2, add_matrix_matrix(vt2, vy2), 0.035, undefined, 0x33aa33);
+
+        
+    });
 
 </script>
 </body>
