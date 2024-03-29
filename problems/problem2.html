@@ -38,7 +38,7 @@
     gui.add(settings, "time_elapsed").name("Time Elapsed").disable();
 
     engine.animation_loop(() => {
-        settings.time_elapsed = engine.get_time_elapsed();
+        settings.time_elapsed = engine.get_time_elapsed().toString();
 
         refresh_displays(gui);
     });
