@@ -54,9 +54,9 @@
     gui.add(settings, "point_size", 0.001, 0.03).name("Point Size");
 
     let gui_matrix = gui.addFolder("Isometry Controls");
-    gui_matrix.add(settings, "theta", -Math.PI, Math.PI);
-    gui_matrix.add(settings, "tx", -2.0, 2.0);
-    gui_matrix.add(settings, "ty", -2.0, 2.0);
+    gui_matrix.add(settings, "theta", -Math.PI, Math.PI).name("Rotation angle");
+    gui_matrix.add(settings, "tx", -2.0, 2.0).name("Translation x");
+    gui_matrix.add(settings, "ty", -2.0, 2.0).name("Translation y");
     gui_matrix.add(settings, "m00_str").name("m00").disable();
     gui_matrix.add(settings, "m01_str").name("m01").disable();
     gui_matrix.add(settings, "m10_str").name("m10").disable();
