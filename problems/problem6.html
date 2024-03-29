@@ -23,7 +23,7 @@
     import {ThreeEngine} from "../js/utils/utils_three.js";
     import {get_default_lil_gui} from "../js/utils/utils_three.js";
     import {refresh_displays} from "../js/utils/utils_three.js";
-    import {mul_matrix_matrix, add_matrix_matrix} from "../js/utils/utils_math.js";
+    import {mul_matrix_scalar, mul_matrix_matrix, add_matrix_matrix, transpose} from "../js/utils/utils_math.js";
 
     // todo: recreate this visualization, demonstrating your understanding of displacement-based distance in SE(2)
     // todo: https://yale-cpsc-487-587-internal-djrakita-c95fa6c3239a481a48d29a6b0fd.gitlab.io/html/visualizations/SE2_distance2.html
@@ -58,15 +58,37 @@
     };
 
     let gui = get_default_lil_gui();
-    gui.add(settings, "theta1", -Math.PI, Math.PI);
+    gui.add(settings, "theta1", -6.28, 6.28);   // [-6.28, 6.28] instead of [-2pi, 2pi], same as instruction
     gui.add(settings, "tx1", -2.0, 2.0);
     gui.add(settings, "ty1", -2.0, 2.0);
     gui.add(actions, "reset1").name("Reset Matrix 1");
-    gui.add(settings, "theta2", -Math.PI, Math.PI);
+    gui.add(settings, "theta2", -6.28, 6.28);   // [-6.28, 6.28] instead of [-2pi, 2pi], same as instruction
     gui.add(settings, "tx2", -2.0, 2.0);
     gui.add(settings, "ty2", -2.0, 2.0);
     gui.add(actions, "reset2").name("Reset Matrix 2");
     gui.add(settings, "dis").name("Disp based Dis").disable();
+
+    function se2_inv(m) {
+        let r = [
+            [m[0][0], m[0][1]],
+            [m[1][0], m[1][1]]
+        ];
+        let r_transpose = transpose(r);
+        let t_negative = [
+            [-m[0][2]],
+            [-m[1][2]]
+        ];
+        let t_new = mul_matrix_matrix(r_transpose, t_negative);
+        return [
+            [r_transpose[0][0], r_transpose[0][1], t_new[0][0]],
+            [r_transpose[1][0], r_transpose[1][1], t_new[1][0]],
+            [0, 0, 1]
+        ]
+    }
+
+    function l2_norm(v) {
+        return Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+    }
 
     engine.animation_loop(() => {
         let m1 = [
@@ -97,7 +119,32 @@
         engine.draw_debug_vector(vt2, add_matrix_matrix(vt2, vx2), 0.035, undefined, 0xaa3333);
         engine.draw_debug_vector(vt2, add_matrix_matrix(vt2, vy2), 0.035, undefined, 0x33aa33);
 
-        
+        let disp = mul_matrix_matrix(se2_inv(m1), m2);
+        let a1 = Math.atan2(disp[1][0], disp[0][0]);
+        let p;
+        let q;
+        if (Math.abs(a1) < 0.0001) {
+            p = 1.0 - Math.pow(a1, 2) / 6.0 + Math.pow(a1, 4) / 120.0;
+            q = a1 / 2.0 - Math.pow(a1, 3) / 24.0 + Math.pow(a1, 5) / 720.0;
+        }
+        else {
+            p = Math.sin(a1) / a1;
+            q = (1.0 - Math.cos(a1)) / a1;
+        }
+        let pq = [
+            [p, q],
+            [-q, p]
+        ];
+        let t = [
+            [disp[0][2]],
+            [disp[1][2]]
+        ];
+        let a23 = mul_matrix_scalar(mul_matrix_matrix(pq, t), (1.0 / (p * p + q * q)));
+        let a2 = a23[0][0];
+        let a3 = a23[1][0];
+
+        settings.dis = l2_norm([a1, a2, a3]);
+        refresh_displays(gui);
     });
 
 </script>
