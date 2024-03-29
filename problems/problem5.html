@@ -23,7 +23,7 @@
     import {ThreeEngine} from "../js/utils/utils_three.js";
     import {get_default_lil_gui} from "../js/utils/utils_three.js";
     import {refresh_displays} from "../js/utils/utils_three.js";
-    import {mul_matrix_matrix} from "../js/utils/utils_math.js";
+    import {mul_matrix_matrix, add_matrix_matrix} from "../js/utils/utils_math.js";
 
     // todo: recreate this visualization, demonstrating your understanding of SE(2)
     // todo: https://yale-cpsc-487-587-internal-djrakita-c95fa6c3239a481a48d29a6b0fd.gitlab.io/html/visualizations/point_mapping_2D_direct_isometry.html
@@ -97,9 +97,9 @@
         let v2 = [m[0][1], m[1][1]];
         let vt = [settings.tx, settings.ty];
 
-        engine.draw_debug_vector([0,0], v1, 0.035, undefined, 0xff3333);
-        engine.draw_debug_vector([0,0], v2, 0.035, undefined, 0x33ff33);
         engine.draw_debug_vector([0,0], vt, 0.035, undefined, 0x3333ff);
+        engine.draw_debug_vector(vt, add_matrix_matrix(vt, v1), 0.035, undefined, 0xff3333);
+        engine.draw_debug_vector(vt, add_matrix_matrix(vt, v2), 0.035, undefined, 0x33ff33);
 
         let new_standard_points = standard_points.map(point => vec3to2(mul_matrix_matrix(m, vec2to3(point))));
         let new_wireframe_points = wireframe_points.map(point => vec3to2(mul_matrix_matrix(m, vec2to3(point))));
