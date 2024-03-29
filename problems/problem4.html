@@ -21,11 +21,80 @@
 <body>
 <script type="module">
     import {ThreeEngine} from "../js/utils/utils_three.js";
+    import {get_default_lil_gui} from "../js/utils/utils_three.js";
+    import {refresh_displays} from "../js/utils/utils_three.js";
 
     // todo: recreate this visualization, demonstrating your understanding of U(1)
     // todo: https://yale-cpsc-487-587-internal-djrakita-c95fa6c3239a481a48d29a6b0fd.gitlab.io/html/visualizations/point_mapping_2D_complex_numbers_isometry.html
     // todo: (no need to draw the unit circle here)
     // todo: or, feel free to come up with any visualization here that demonstrates your understanding of U(1)
+
+    let engine = ThreeEngine.new_default_2d();
+    engine.add_standard2Dshape_as_mesh_object(0x00eeff);
+
+    let settings = {
+        draw_points: true,
+        draw_wireframe: true,
+        draw_mesh: false,
+        point_size: 0.02,
+        theta: 0.0,
+        a_str: "",
+        b_str: "",
+    }
+
+    let gui = get_default_lil_gui();
+    gui.add(settings, "draw_points").name("Draw Points");
+    gui.add(settings, "draw_wireframe").name("Draw Wireframe");
+    gui.add(settings, "draw_mesh").name("Draw Mesh");
+    gui.add(settings, "point_size", 0.001, 0.03).name("Point Size");
+
+    let gui_matrix = gui.addFolder('Complex Num Controls');
+    gui_matrix.add(settings, "theta", -Math.PI, Math.PI);
+    gui_matrix.add(settings, "a_str").name("a").disable();
+    gui_matrix.add(settings, "b_str").name("b").disable();
+
+    let standard_points = engine.get_local_vertex_positions_of_mesh_object(0);
+    let wireframe_points = engine.get_local_vertex_positions_of_mesh_object_wireframe(0);
+
+    function complex_mul(c1, c2) {
+        let a1 = c1[0];
+        let b1 = c1[1];
+        let a2 = c2[0];
+        let b2 = c2[1];
+        return [a1 * a2 - b1 * b2, a1 * b2 + b1 * a2];
+    }
+
+    engine.animation_loop(() => {
+        // a + bi = cos(theta) + sin(theta)i
+        let a = Math.cos(settings.theta);
+        let b = Math.sin(settings.theta);
+        let c = [a, b];
+
+        settings.a_str = a.toFixed(5);
+        settings.b_str = b.toFixed(5);
+        refresh_displays(gui);
+
+        let v1 = complex_mul(c, [0, 1]);
+        let v2 = complex_mul(c, [1, 0]);
+
+        engine.draw_debug_vector([0,0], v1, 0.035, undefined, 0xff3333);
+        engine.draw_debug_vector([0,0], v2, 0.035, undefined, 0x33ff33);
+
+        let new_standard_points = standard_points.map(point => complex_mul(c, point));
+        let new_wireframe_points = wireframe_points.map(point => complex_mul(c, point));
+
+        engine.update_vertex_positions_of_mesh_object(0, new_standard_points);
+        engine.update_vertex_positions_of_mesh_object_wireframe(0, new_wireframe_points);
+
+        if (settings.draw_points) {
+            new_standard_points.forEach(point => {
+                engine.draw_debug_sphere(point, settings.point_size, 0xeeee00);
+            });
+        }
+
+        engine.mesh_objects[0].visible = settings.draw_mesh;
+        engine.set_mesh_object_wireframe_visibility(0, settings.draw_wireframe);
+    });
 
 </script>
 </body>
