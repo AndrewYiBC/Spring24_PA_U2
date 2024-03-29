@@ -52,7 +52,7 @@
     gui.add(settings, "draw_mesh").name("Draw Mesh");
     gui.add(settings, "point_size", 0.001, 0.03).name("Point Size");
 
-    let gui_matrix = gui.addFolder('Matrix Controls');
+    let gui_matrix = gui.addFolder("Matrix Controls");
     gui_matrix.add(settings, "theta", -Math.PI, Math.PI);
     gui_matrix.add(settings, "m00_str").name("m00").disable();
     gui_matrix.add(settings, "m01_str").name("m01").disable();

@@ -39,7 +39,7 @@
         point_size: 0.02,
         theta: 0.0,
         a_str: "",
-        b_str: "",
+        b_str: ""
     }
 
     let gui = get_default_lil_gui();
@@ -48,10 +48,10 @@
     gui.add(settings, "draw_mesh").name("Draw Mesh");
     gui.add(settings, "point_size", 0.001, 0.03).name("Point Size");
 
-    let gui_matrix = gui.addFolder('Complex Num Controls');
-    gui_matrix.add(settings, "theta", -Math.PI, Math.PI);
-    gui_matrix.add(settings, "a_str").name("a").disable();
-    gui_matrix.add(settings, "b_str").name("b").disable();
+    let gui_complex = gui.addFolder("Complex Num Controls");
+    gui_complex.add(settings, "theta", -Math.PI, Math.PI);
+    gui_complex.add(settings, "a_str").name("a").disable();
+    gui_complex.add(settings, "b_str").name("b").disable();
 
     let standard_points = engine.get_local_vertex_positions_of_mesh_object(0);
     let wireframe_points = engine.get_local_vertex_positions_of_mesh_object_wireframe(0);
