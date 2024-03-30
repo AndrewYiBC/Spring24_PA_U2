@@ -74,8 +74,8 @@
         settings.b_str = b.toFixed(5);
         refresh_displays(gui);
 
-        let v1 = complex_mul(c, [0, 1]);
-        let v2 = complex_mul(c, [1, 0]);
+        let v1 = complex_mul(c, [1, 0]);
+        let v2 = complex_mul(c, [0, 1]);
 
         engine.draw_debug_vector([0,0], v1, 0.035, undefined, 0xff3333);
         engine.draw_debug_vector([0,0], v2, 0.035, undefined, 0x33ff33);
